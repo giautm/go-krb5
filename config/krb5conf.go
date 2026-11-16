@@ -129,6 +129,10 @@ type LibDefaults struct {
 	// K5LoginDirectory has a default value based on the user's home directory. Must be owned by the user or root.
 	K5LoginDirectory string
 
+	// KCMSocket is the socket of the KCM daemon, such as sssd-kcm. It
+	// defaults to /var/run/.heim_org.h5l.kcm-socket, and "-" disables KCM.
+	KCMSocket string
+
 	// KDCDefaultOptions has a default value of 0x00000010 (KDC_OPT_RENEWABLE_OK). It may be given in decimal, or in
 	// hexadecimal with a 0x prefix.
 	KDCDefaultOptions asn1.BitString
@@ -184,6 +188,7 @@ const (
 	defaultCCacheName       = "FILE:/tmp/krb5cc_%{uid}"
 	defaultConfigPath       = "/etc/krb5.conf"
 	defaultClientKeytabName = "/usr/local/var/krb5/user/%{euid}/client.keytab"
+	defaultKCMSocket        = "/var/run/.heim_org.h5l.kcm-socket"
 	defaultKDCOptions       = 0x00000010
 	defaultUDPPreference    = 1465
 	maxUDPPreference        = 32700
@@ -208,6 +213,7 @@ func newLibDefaults() LibDefaults {
 		DNSLookupKDC:            true,
 		K5LoginAuthoritative:    true,
 		K5LoginDirectory:        hdir,
+		KCMSocket:               defaultKCMSocket,
 		KDCDefaultOptions:       kdcOptions(defaultKDCOptions),
 		KDCTimeSync:             1,
 		NoAddresses:             true,
@@ -339,6 +345,10 @@ var libDefaultSetters = map[string]libDefaultSetter{
 	ConfigKeyK5LoginDirectory: func(l *LibDefaults, v string) error {
 		l.K5LoginDirectory = v
 
+		return nil
+	},
+	ConfigKeyKCMSocket: func(l *LibDefaults, v string) error {
+		l.KCMSocket = v
 		return nil
 	},
 	ConfigKeyKDCDefaultOptions: func(l *LibDefaults, s string) error {
